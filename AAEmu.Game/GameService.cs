@@ -103,6 +103,9 @@ public sealed class GameService : IHostedService, IDisposable
         GameEventManager.Instance.Initialize();
         ModuleManager.Instance.Initialize();
         ServerMetricsManager.Instance.Initialize();
+        
+        // Initialize Network Protection System
+        AAEmu.Game.Core.Network.Protection.NetworkProtectionManager.Instance.Initialize();
         ShipyardManager.Instance.Initialize();
         // SkillTlIdManager.Instance.Initialize();
         AuctionIdManager.Instance.Initialize();

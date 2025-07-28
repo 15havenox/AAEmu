@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Numerics;
 using System.Text;
 
@@ -455,8 +455,8 @@ public class PacketStream : ICloneable, IComparable
     {
         if (Pos + 1 > Count)
         {
-            Logger.Error("Attempted to read beyond the end of the stream.");
-            return 0; // Возвращаем значение по умолчанию
+            Logger.Error("Attempted to read beyond the end of the stream. Position: {0}, Count: {1}", Pos, Count);
+            throw new InvalidOperationException($"Cannot read beyond stream end. Position: {Pos}, Count: {Count}");
         }
         return this[Pos++];
     }

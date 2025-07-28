@@ -41,6 +41,9 @@ public class ServerManagementCommands : ICommand
             case "test":
                 HandleTestCommand(character, args, messageOutput);
                 break;
+            case "protection":
+                HandleProtectionCommand(character, args, messageOutput);
+                break;
             default:
                 ShowHelp(messageOutput);
                 break;
@@ -54,6 +57,7 @@ public class ServerManagementCommands : ICommand
         messageOutput.SendMessage("/server modules [list|enable|disable] [name] - Manage modules");
         messageOutput.SendMessage("/server events [list|start|stop] [type] - Manage events");
         messageOutput.SendMessage("/server health - Show server health status");
+        messageOutput.SendMessage("/server protection [report|unban] [ip] - Network protection");
         messageOutput.SendMessage("/server test [event] - Test various systems");
     }
 
@@ -268,6 +272,66 @@ public class ServerManagementCommands : ICommand
 
             default:
                 messageOutput.SendMessage("Invalid test type. Use: event, module, or metrics");
+                break;
+        }
+    }
+
+    private void HandleProtectionCommand(Character character, string[] args, IMessageOutput messageOutput)
+    {
+        if (args.Length < 2)
+        {
+            messageOutput.SendMessage("Usage: /server protection [report|unban|ban] [ip]");
+            return;
+        }
+
+        var action = args[1].ToLower();
+        var protectionManager = AAEmu.Game.Core.Network.Protection.NetworkProtectionManager.Instance;
+
+        switch (action)
+        {
+            case "report":
+                var report = protectionManager.GetProtectionReport();
+                var lines = report.Split('\n');
+                foreach (var line in lines)
+                {
+                    messageOutput.SendMessage(line);
+                }
+                break;
+
+            case "unban":
+                if (args.Length < 3)
+                {
+                    messageOutput.SendMessage("Usage: /server protection unban <ip>");
+                    return;
+                }
+                var ipToUnban = args[2];
+                // Manual unban by removing from banned list (would need to add this method)
+                messageOutput.SendMessage($"Manual unban feature would be implemented here for IP: {ipToUnban}");
+                break;
+
+            case "ban":
+                if (args.Length < 3)
+                {
+                    messageOutput.SendMessage("Usage: /server protection ban <ip>");
+                    return;
+                }
+                var ipToBan = args[2];
+                protectionManager.BanIP(ipToBan, "Manual ban by GM");
+                messageOutput.SendMessage($"IP {ipToBan} has been banned manually");
+                break;
+
+            case "stats":
+                var stats = protectionManager.Stats;
+                messageOutput.SendMessage("=== Protection Statistics ===");
+                messageOutput.SendMessage($"Packets Processed: {stats.PacketsProcessed:N0}");
+                messageOutput.SendMessage($"Packets Blocked: {stats.PacketsBlocked:N0}");
+                messageOutput.SendMessage($"Malformed Packets: {stats.MalformedPackets:N0}");
+                messageOutput.SendMessage($"Unknown Packets: {stats.UnknownPackets:N0}");
+                messageOutput.SendMessage($"IPs Banned: {stats.IPsBanned:N0}");
+                break;
+
+            default:
+                messageOutput.SendMessage("Invalid action. Use: report, unban, ban, or stats");
                 break;
         }
     }
