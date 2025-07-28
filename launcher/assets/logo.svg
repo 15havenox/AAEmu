@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="58" fill="#1a1a1a" stroke="#d4af37" stroke-width="4"/>
+  
+  <!-- Inner decorative circle -->
+  <circle cx="60" cy="60" r="45" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Stylized "A" for ArcheAge -->
+  <path d="M60 25 L40 80 L48 80 L53 65 L67 65 L72 80 L80 80 L60 25 Z" fill="#d4af37"/>
+  <rect x="56" y="55" width="8" height="8" fill="#1a1a1a"/>
+  
+  <!-- BR text -->
+  <text x="60" y="100" font-family="serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#d4af37">BR</text>
+  
+  <!-- Decorative elements -->
+  <circle cx="30" cy="30" r="2" fill="#d4af37" opacity="0.7"/>
+  <circle cx="90" cy="30" r="2" fill="#d4af37" opacity="0.7"/>
+  <circle cx="30" cy="90" r="2" fill="#d4af37" opacity="0.7"/>
+  <circle cx="90" cy="90" r="2" fill="#d4af37" opacity="0.7"/>
+</svg>
