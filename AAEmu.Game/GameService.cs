@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using AAEmu.Commons.Utils.DB;
 using AAEmu.Commons.Utils.Updater;
 using AAEmu.Game.Core.Managers;
@@ -98,6 +98,11 @@ public sealed class GameService : IHostedService, IDisposable
         UccIdManager.Instance.Initialize();
         MusicIdManager.Instance.Initialize();
         ShipyardIdManager.Instance.Initialize();
+        
+        // Initialize Module and Event Systems
+        GameEventManager.Instance.Initialize();
+        ModuleManager.Instance.Initialize();
+        ServerMetricsManager.Instance.Initialize();
         ShipyardManager.Instance.Initialize();
         // SkillTlIdManager.Instance.Initialize();
         AuctionIdManager.Instance.Initialize();
