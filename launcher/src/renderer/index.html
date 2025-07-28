@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcheAge BR: O Sonho! - Launcher</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Barra de título customizada -->
+    <div class="titlebar">
+        <div class="titlebar-content">
+            <div class="titlebar-title">
+                <img src="../assets/logo-small.png" alt="Logo" class="titlebar-logo">
+                <span>ArcheAge BR: O Sonho!</span>
+            </div>
+            <div class="titlebar-controls">
+                <button class="titlebar-button minimize-btn" id="minimizeBtn">
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                        <path d="M0 6h12v1H0z"/>
+                    </svg>
+                </button>
+                <button class="titlebar-button close-btn" id="closeBtn">
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                        <path d="M6 4.5L10.5 0 12 1.5 7.5 6 12 10.5 10.5 12 6 7.5 1.5 12 0 10.5 4.5 6 0 1.5 1.5 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container principal -->
+    <div class="container">
+        <!-- Background animado -->
+        <div class="background-animation">
+            <div class="floating-particles"></div>
+        </div>
+
+        <!-- Header com logo e nome do servidor -->
+        <header class="header">
+            <div class="logo-container">
+                <img src="../assets/logo.png" alt="ArcheAge BR Logo" class="main-logo">
+                <h1 class="server-name">ArcheAge BR: O Sonho!</h1>
+                <p class="server-subtitle">Launcher Oficial</p>
+            </div>
+        </header>
+
+        <!-- Área principal de conteúdo -->
+        <main class="main-content">
+            <!-- Painel de login -->
+            <div class="login-panel">
+                <div class="panel-header">
+                    <h2>Acesso à Conta</h2>
+                </div>
+                
+                <form class="login-form" id="loginForm">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="seu.email@exemplo.com" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span class="checkmark"></span>
+                            Lembrar email
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="loginBtn">
+                            <span class="btn-text">Conectar</span>
+                            <div class="btn-loading" style="display: none;">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="panel-footer">
+                    <a href="#" class="link" id="forgotPassword">Esqueci minha senha</a>
+                    <a href="#" class="link" id="createAccount">Criar conta</a>
+                </div>
+            </div>
+
+            <!-- Painel de status e informações -->
+            <div class="info-panel">
+                <!-- Status do servidor -->
+                <div class="server-status">
+                    <div class="status-indicator" id="serverStatus">
+                        <div class="status-dot offline"></div>
+                        <span class="status-text">Verificando servidor...</span>
+                    </div>
+                </div>
+
+                <!-- Informações do jogo -->
+                <div class="game-info">
+                    <div class="info-item">
+                        <span class="info-label">Versão do Cliente:</span>
+                        <span class="info-value" id="clientVersion">Verificando...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Diretório de Instalação:</span>
+                        <span class="info-value" id="installPath">Não definido</span>
+                        <button class="btn btn-small" id="changeInstallPath">Alterar</button>
+                    </div>
+                </div>
+
+                <!-- Progresso de download -->
+                <div class="download-progress" id="downloadProgress" style="display: none;">
+                    <div class="progress-header">
+                        <span class="progress-title">Baixando atualizações...</span>
+                        <span class="progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span class="progress-speed">0 KB/s</span>
+                        <span class="progress-size">0 MB / 0 MB</span>
+                    </div>
+                </div>
+
+                <!-- Botão de jogar -->
+                <div class="play-section">
+                    <button class="btn btn-play" id="playBtn" disabled>
+                        <span class="btn-text">Jogar</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Rodapé com links -->
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="#" class="footer-link" id="websiteLink">Site Oficial</a>
+                <a href="#" class="footer-link" id="discordLink">Discord</a>
+                <a href="#" class="footer-link" id="supportLink">Suporte</a>
+            </div>
+            <div class="footer-info">
+                <span class="version">Launcher v<span id="appVersion">1.0.0</span></span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modais -->
+    <div class="modal-overlay" id="modalOverlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Título</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                Conteúdo do modal
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
+                <button class="btn btn-primary" id="modalConfirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificações -->
+    <div class="notifications" id="notifications"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

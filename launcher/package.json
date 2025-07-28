@@ -1,0 +1,67 @@
+{
+  "name": "archeage-br-launcher",
+  "version": "1.0.0",
+  "description": "Launcher oficial para ArcheAge BR: O Sonho!",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.archeagebr.launcher",
+    "productName": "ArcheAge BR Launcher",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ArcheAge BR Launcher"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  },
+  "keywords": [
+    "archeage",
+    "mmorpg",
+    "game",
+    "launcher",
+    "aaemu"
+  ],
+  "author": "ArcheAge BR Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "crypto-js": "^4.2.0",
+    "fs-extra": "^11.2.0",
+    "node-stream-zip": "^1.15.0",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7"
+  }
+}
