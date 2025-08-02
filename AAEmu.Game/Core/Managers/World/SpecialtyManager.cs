@@ -190,7 +190,7 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
             return 0;
         }
 
-        if (MathUtil.CalculateDistance(player.Transform.World.Position, npc.Transform.World.Position) > 2.5)
+        if (MathUtil.CalculateDistance(player.Transform.World.Position, npc.Transform.World.Position) > AppConfiguration.Instance.Specialty.TradePackMaxDistance)
         {
             player.SendErrorMessage(ErrorMessageType.TooFarAway);
             return 0;
@@ -266,7 +266,8 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
     {
         Logger.Debug($"SellSpecialty - Player: {player.Name}, NPC ObjId: {npcObjId}");
         
-        if (player.LaborPower < 60)
+        var laborCost = AppConfiguration.Instance.Specialty.TradePackLaborCost;
+        if (player.LaborPower < laborCost)
         {
             player.SendErrorMessage(ErrorMessageType.NotEnoughLaborPower);
             return 0;
@@ -298,9 +299,8 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
         var crafterId = backpack.MadeUnitId != player.Id ? backpack.MadeUnitId : 0;
         Logger.Debug($"SellSpecialty - CrafterId: {crafterId}, MadeUnitId: {backpack.MadeUnitId}, PlayerId: {player.Id}");
         
-        var sellerShare = 0.80f; // 80% default, set this to 1f for packs that don't share profit
-
-        var interestRate = 5;
+        var sellerShare = AppConfiguration.Instance.Specialty.TradePackSellerShare; // Configurable seller share
+        var interestRate = AppConfiguration.Instance.Specialty.TradePackInterestRate; // Configurable interest rate
 
         var finalPriceNoInterest = (basePrice * (priceRatio / 100f));
         var interest = (finalPriceNoInterest * (interestRate / 100f));
@@ -368,7 +368,7 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
         // Delete the backpack
         player.Inventory.Equipment.ConsumeItem(ItemTaskType.SellBackpack, backpack.TemplateId, 1, backpack);
         // TODO: Calculate proper labor by skill level
-        player.ChangeLabor(-60, (int)ActabilityType.Commerce);
+        player.ChangeLabor(-laborCost, (int)ActabilityType.Commerce);
 
         // Add one pack sold in this zone during this tick
         var zoneGroupId = ZoneManager.Instance.GetZoneByKey(player.Transform.ZoneId)?.GroupId ?? 0;

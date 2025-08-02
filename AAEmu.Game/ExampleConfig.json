@@ -33,5 +33,19 @@
     "HeightMapsEnable": true,
     "DebugInfo": true,
     "DebugInfoLevel": 100,
-	"DefaultLanguage" : "en_us"
+    "DefaultLanguage": "en_us",
+    "Specialty": {
+        "MaxSpecialtyRatio": 130,
+        "MinSpecialtyRatio": 70,
+        "RatioDecreasePerPack": 0.5,
+        "RatioIncreasePerTick": 5.0,
+        "RatioDecreaseTickMinutes": 1.0,
+        "RatioRegenTickMinutes": 60.0,
+        "TradePackMailDelayHours": 8.0,
+        "InstantTradePackDelivery": false,
+        "TradePackInterestRate": 5,
+        "TradePackSellerShare": 0.80,
+        "TradePackLaborCost": 60,
+        "TradePackMaxDistance": 2.5
+    }
 }
