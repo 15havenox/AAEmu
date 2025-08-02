@@ -620,3 +620,33 @@ CREATE TABLE `audit_char_sus` (
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ;
+
+-- Add specialty tables if they don't exist
+CREATE TABLE IF NOT EXISTS `specialty_npcs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `npc_id` int(11) NOT NULL,
+  `specialty_bundle_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `npc_id` (`npc_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `specialty_bundle_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_id` int(11) NOT NULL,
+  `specialty_bundle_id` int(11) NOT NULL,
+  `profit` int(11) NOT NULL DEFAULT 0,
+  `ratio` int(11) NOT NULL DEFAULT 1000,
+  PRIMARY KEY (`id`),
+  KEY `item_id` (`item_id`),
+  KEY `specialty_bundle_id` (`specialty_bundle_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `specialties` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `row_zone_group_id` int(11) NOT NULL,
+  `col_zone_group_id` int(11) NOT NULL,
+  `ratio` int(11) NOT NULL DEFAULT 1000,
+  `profit` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

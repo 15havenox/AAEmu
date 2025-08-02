@@ -1,4 +1,4 @@
-﻿using AAEmu.Commons.Exceptions;
+using AAEmu.Commons.Exceptions;
 using AAEmu.Commons.Utils;
 using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers.Id;
@@ -57,15 +57,31 @@ public class MailManager : Singleton<MailManager>
         // Verify Receiver
         var targetName = NameManager.Instance.GetCharacterName(mail.Header.ReceiverId);
         var targetId = NameManager.Instance.GetCharacterId(mail.Header.ReceiverName);
-        if (!string.Equals(targetName, mail.Header.ReceiverName, StringComparison.InvariantCultureIgnoreCase))
+        
+        // For system mails (like trade pack mails), we need to be more lenient with verification
+        // since the receiver might not be in the NameManager cache yet
+        if (mail.MailType == MailType.SysSellBackpack || mail.MailType == MailType.SysExpress || mail.MailType == MailType.SysNormal)
         {
-            Logger.Debug("Send() - Failed to verify receiver name {0} != {1}", targetName, mail.Header.ReceiverName);
-            return false; // Name mismatch
+            // For system mails, just verify the receiver ID is valid (> 0)
+            if (mail.Header.ReceiverId == 0)
+            {
+                Logger.Debug("Send() - Failed to verify receiver id for system mail: {0}", mail.Header.ReceiverId);
+                return false;
+            }
         }
-        if (targetId != mail.Header.ReceiverId)
+        else
         {
-            Logger.Debug("Send() - Failed to verify receiver id {0} != {1}", targetId, mail.Header.ReceiverId);
-            return false; // Id mismatch
+            // For player mails, do the full verification
+            if (!string.Equals(targetName, mail.Header.ReceiverName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                Logger.Debug("Send() - Failed to verify receiver name {0} != {1}", targetName, mail.Header.ReceiverName);
+                return false; // Name mismatch
+            }
+            if (targetId != mail.Header.ReceiverId)
+            {
+                Logger.Debug("Send() - Failed to verify receiver id {0} != {1}", targetId, mail.Header.ReceiverId);
+                return false; // Id mismatch
+            }
         }
 
         // Assign a Id if we didn't have one yet
