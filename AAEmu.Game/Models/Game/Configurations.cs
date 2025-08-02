@@ -1,4 +1,4 @@
-﻿using AAEmu.Commons.Network;
+using AAEmu.Commons.Network;
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace AAEmu.Game.Models.Game;
@@ -202,6 +202,32 @@ public class SpecialtyConfig
     /// Time in minutes before a traded pack is no longer counted towards the trade rate calculation
     /// </summary>
     public double RatioRegenTickMinutes { get; set; } = 60f;
+    
+    // Trade Pack Mail Configuration
+    /// <summary>
+    /// Delay in hours for trade pack mail delivery (default: 8 hours)
+    /// </summary>
+    public double TradePackMailDelayHours { get; set; } = 8.0;
+    /// <summary>
+    /// Enable instant trade pack delivery (no delay)
+    /// </summary>
+    public bool InstantTradePackDelivery { get; set; } = false;
+    /// <summary>
+    /// Interest rate for trade packs (default: 5%)
+    /// </summary>
+    public int TradePackInterestRate { get; set; } = 5;
+    /// <summary>
+    /// Seller share percentage for trade packs (default: 80%)
+    /// </summary>
+    public double TradePackSellerShare { get; set; } = 0.80;
+    /// <summary>
+    /// Labor cost for selling trade packs (default: 60)
+    /// </summary>
+    public int TradePackLaborCost { get; set; } = 60;
+    /// <summary>
+    /// Maximum distance to NPC for selling trade packs (default: 2.5)
+    /// </summary>
+    public double TradePackMaxDistance { get; set; } = 2.5;
 }
 
 public class ScriptsConfig

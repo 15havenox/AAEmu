@@ -1,4 +1,4 @@
-﻿using AAEmu.Game.Core.Managers;
+using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Items;
 
@@ -20,7 +20,9 @@ public class MailForSpeciality : BaseMail
     private bool _sellerIsCrafter;
     // unused private int _itemCountTotal;
 
-    private static TimeSpan TradePackMailDelay = TimeSpan.FromHours(8); // Default is 8 hours
+    private static TimeSpan TradePackMailDelay => AppConfiguration.Instance.Specialty.InstantTradePackDelivery 
+        ? TimeSpan.Zero 
+        : TimeSpan.FromHours(AppConfiguration.Instance.Specialty.TradePackMailDelayHours);
     private static string TradeDeliveryName = ".sellBackpack";
     private static string TradeDeliveryTitle = "Speciality Payment";
     private static string TradeDeliveryTitleSeller = "Speciality Payment [Delivery]";
@@ -111,7 +113,7 @@ public class MailForSpeciality : BaseMail
         Header.SenderName = TradeDeliveryName;
 
         Header.ReceiverId = _sender.Id;
-        ReceiverName = _sender.Name;
+        ReceiverName = _sender.Name.NormalizeName(); // Normalize the name to match NameManager format
 
         Title = _crafterId == 0 ? TradeDeliveryTitle : TradeDeliveryTitleSeller;
 
@@ -185,7 +187,7 @@ public class MailForSpeciality : BaseMail
         Header.SenderName = TradeDeliveryName;
 
         Header.ReceiverId = _crafterId;
-        ReceiverName = crafterName;
+        ReceiverName = crafterName?.NormalizeName() ?? string.Empty; // Normalize the name to match NameManager format
 
         var payout = (int)((_itemCountBase * _tradedRate) / 100f) + _itemCountBonus;
         var payoutWithInterest = (int)((payout * (100 + _interestRate)) / 100f);

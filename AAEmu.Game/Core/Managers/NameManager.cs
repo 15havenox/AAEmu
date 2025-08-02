@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using AAEmu.Commons.Utils;
 using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers.UnitManagers;
@@ -116,10 +116,63 @@ public partial class NameManager : Singleton<NameManager>
             return CharacterCreateError.NameAlreadyExists;
         }
 
+        // Allow admin names with special characters
+        if (IsAdminName(name))
+        {
+            return CharacterCreateError.Ok;
+        }
+
         if (string.IsNullOrWhiteSpace(name) || !ValidatesName(name.AsSpan()))
             return CharacterCreateError.InvalidCharacters;
 
         return CharacterCreateError.Ok;
+    }
+
+    /// <summary>
+    /// Check if the name is an admin name with special characters
+    /// </summary>
+    /// <param name="name">Character name to check</param>
+    /// <returns>True if it's an admin name</returns>
+    private bool IsAdminName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return false;
+
+        // Admin name patterns
+        var adminPatterns = new[]
+        {
+            @"^\[ADM\].*$",           // [ADM]Name
+            @"^\[GM\].*$",             // [GM]Name
+            @"^\[DEV\].*$",            // [DEV]Name
+            @"^\[MOD\].*$",            // [MOD]Name
+            @"^\[ADMIN\].*$",          // [ADMIN]Name
+            @"^\[STAFF\].*$",          // [STAFF]Name
+            @"^\[HELPER\].*$",         // [HELPER]Name
+            @"^\[SUPPORT\].*$",        // [SUPPORT]Name
+            @"^\[OWNER\].*$",          // [OWNER]Name
+            @"^\[SERVER\].*$",         // [SERVER]Name
+            @"^\[SYSTEM\].*$",         // [SYSTEM]Name
+            @"^\[BOT\].*$",            // [BOT]Name
+            @"^\[NPC\].*$",            // [NPC]Name
+            @"^\[TEST\].*$",           // [TEST]Name
+            @"^\[DEBUG\].*$",          // [DEBUG]Name
+            @"^\[INFO\].*$",           // [INFO]Name
+            @"^\[WARN\].*$",           // [WARN]Name
+            @"^\[ERROR\].*$",          // [ERROR]Name
+            @"^\[CRITICAL\].*$",       // [CRITICAL]Name
+            @"^\[EMERGENCY\].*$"       // [EMERGENCY]Name
+        };
+
+        foreach (var pattern in adminPatterns)
+        {
+            if (Regex.IsMatch(name, pattern, RegexOptions.IgnoreCase))
+            {
+                Logger.Debug($"Admin name detected: {name}");
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private bool ValidatesName(ReadOnlySpan<char> name) =>

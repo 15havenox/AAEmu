@@ -1,4 +1,4 @@
-﻿using AAEmu.Commons.Utils;
+using AAEmu.Commons.Utils;
 using AAEmu.Game.Models;
 using AAEmu.Game.Models.Game;
 using AAEmu.Game.Models.Game.Char;
@@ -190,55 +190,97 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
             return 0;
         }
 
-        if (MathUtil.CalculateDistance(player.Transform.World.Position, npc.Transform.World.Position) > 2.5)
+        if (MathUtil.CalculateDistance(player.Transform.World.Position, npc.Transform.World.Position) > AppConfiguration.Instance.Specialty.TradePackMaxDistance)
         {
             player.SendErrorMessage(ErrorMessageType.TooFarAway);
             return 0;
         }
 
+        Logger.Debug($"GetBasePriceForSpecialty - NPC TemplateId: {npc.TemplateId}, Specialty: {npc.Template.Specialty}");
+        
+        // Check if NPC is a specialty NPC
         if (!_specialtyNpc.TryGetValue(npc.TemplateId, out var specialtyNpc))
         {
-            player.SendErrorMessage(ErrorMessageType.StoreCantSellSameZone);
-            return 1;
+            Logger.Warn($"GetBasePriceForSpecialty - NPC {npc.TemplateId} not found in specialty_npcs table");
+            
+            // If no specialty NPC data, try to use a default bundle
+            var defaultBundleId = 1; // Default bundle ID
+            Logger.Debug($"GetBasePriceForSpecialty - Using default bundle {defaultBundleId}");
+            
+            if (!_specialtyBundleItemsMapped.TryGetValue(backpack.TemplateId, out var bundleMapping))
+            {
+                Logger.Warn($"GetBasePriceForSpecialty - Backpack {backpack.TemplateId} not found in specialty_bundle_items table");
+                player.SendErrorMessage(ErrorMessageType.Invalid);
+                return 0;
+            }
+
+            if (!bundleMapping.TryGetValue(defaultBundleId, out var bundleItem))
+            {
+                Logger.Warn($"GetBasePriceForSpecialty - Default bundle {defaultBundleId} not found for backpack {backpack.TemplateId}");
+                player.SendErrorMessage(ErrorMessageType.Invalid);
+                return 0;
+            }
+
+            if (bundleItem == null)
+            {
+                Logger.Warn($"GetBasePriceForSpecialty - BundleItem is null for backpack {backpack.TemplateId}, bundle {defaultBundleId}");
+                player.SendErrorMessage(ErrorMessageType.Invalid);
+                return 0;
+            }
+
+            var basePrice = (int)(Math.Floor(bundleItem.Profit * (bundleItem.Ratio / 1000f)) + bundleItem.Item.Refund);
+            Logger.Debug($"GetBasePriceForSpecialty - Calculated base price (default bundle): {basePrice}");
+            return basePrice;
         }
 
         var bundleIdAtNpc = specialtyNpc.SpecialtyBundleId;
+        Logger.Debug($"GetBasePriceForSpecialty - BundleId: {bundleIdAtNpc}, Backpack TemplateId: {backpack.TemplateId}");
 
         if (!_specialtyBundleItemsMapped.TryGetValue(backpack.TemplateId, out var bundleMapping))
         {
+            Logger.Warn($"GetBasePriceForSpecialty - Backpack {backpack.TemplateId} not found in specialty_bundle_items table");
             player.SendErrorMessage(ErrorMessageType.Invalid);
             return 0;
         }
 
         if (!bundleMapping.TryGetValue(bundleIdAtNpc, out var bundleItem))
         {
+            Logger.Warn($"GetBasePriceForSpecialty - Bundle {bundleIdAtNpc} not found for backpack {backpack.TemplateId}");
             player.SendErrorMessage(ErrorMessageType.Invalid);
             return 0;
         }
 
         if (bundleItem == null)
         {
+            Logger.Warn($"GetBasePriceForSpecialty - BundleItem is null for backpack {backpack.TemplateId}, bundle {bundleIdAtNpc}");
             player.SendErrorMessage(ErrorMessageType.Invalid);
             return 0;
         }
 
-        return (int)(Math.Floor(bundleItem.Profit * (bundleItem.Ratio / 1000f)) + bundleItem.Item.Refund);
+        var basePrice = (int)(Math.Floor(bundleItem.Profit * (bundleItem.Ratio / 1000f)) + bundleItem.Item.Refund);
+        Logger.Debug($"GetBasePriceForSpecialty - Calculated base price: {basePrice}");
+        return basePrice;
     }
 
     public int SellSpecialty(Character player, uint npcObjId)
     {
-        if (player.LaborPower < 60)
+        Logger.Debug($"SellSpecialty - Player: {player.Name}, NPC ObjId: {npcObjId}");
+        
+        var laborCost = AppConfiguration.Instance.Specialty.TradePackLaborCost;
+        if (player.LaborPower < laborCost)
         {
             player.SendErrorMessage(ErrorMessageType.NotEnoughLaborPower);
             return 0;
         }
 
         var basePrice = GetBasePriceForSpecialty(player, npcObjId);
+        Logger.Debug($"SellSpecialty - Base price: {basePrice}");
 
         if (basePrice == 0) // We had an error, no need to keep going
             return basePrice;
 
         var priceRatio = GetRatioForSpecialty(player);
+        Logger.Debug($"SellSpecialty - Price ratio: {priceRatio}");
 
         var backpack = player.Inventory.Equipment.GetItemBySlot((int)EquipmentItemSlot.Backpack);
         if (backpack == null)
@@ -255,9 +297,10 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
 
         // TODO: Get crafter ID of trade-pack
         var crafterId = backpack.MadeUnitId != player.Id ? backpack.MadeUnitId : 0;
-        var sellerShare = 0.80f; // 80% default, set this to 1f for packs that don't share profit
-
-        var interestRate = 5;
+        Logger.Debug($"SellSpecialty - CrafterId: {crafterId}, MadeUnitId: {backpack.MadeUnitId}, PlayerId: {player.Id}");
+        
+        var sellerShare = AppConfiguration.Instance.Specialty.TradePackSellerShare; // Configurable seller share
+        var interestRate = AppConfiguration.Instance.Specialty.TradePackInterestRate; // Configurable interest rate
 
         var finalPriceNoInterest = (basePrice * (priceRatio / 100f));
         var interest = (finalPriceNoInterest * (interestRate / 100f));
@@ -292,6 +335,8 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
             amountOfItemsCrafter = amountOfItemsTotalPayout - amountOfItemsSeller;
         }
 
+        Logger.Debug($"SellSpecialty - Final calculations - Seller: {amountOfItemsSeller}, Crafter: {amountOfItemsCrafter}, ItemType: {itemTypeToDeliver}");
+
         // Mail for seller
         if (amountOfItemsSeller > 0) // This check is here for if you'd create custom packs that give 100% to crafter and 0% for delivery
         {
@@ -299,9 +344,11 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
             sellerMail.FinalizeForSeller();
             if (!sellerMail.Send())
             {
+                Logger.Error($"SellSpecialty - Failed to send seller mail for player {player.Name}");
                 player.SendErrorMessage(ErrorMessageType.MailUnknownFailure);
                 return basePrice;
             }
+            Logger.Debug($"SellSpecialty - Seller mail sent successfully");
         }
 
         // Mail for crafter. If seller is not crafter, send a crafter mail as well
@@ -311,15 +358,17 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
             crafterMail.FinalizeForCrafter();
             if (!crafterMail.Send())
             {
+                Logger.Error($"SellSpecialty - Failed to send crafter mail for crafter {crafterId}");
                 player.SendErrorMessage(ErrorMessageType.MailUnknownFailure);
                 // return; // don't cancel here if we fail to send mail to crafter
             }
+            Logger.Debug($"SellSpecialty - Crafter mail sent successfully");
         }
 
         // Delete the backpack
         player.Inventory.Equipment.ConsumeItem(ItemTaskType.SellBackpack, backpack.TemplateId, 1, backpack);
         // TODO: Calculate proper labor by skill level
-        player.ChangeLabor(-60, (int)ActabilityType.Commerce);
+        player.ChangeLabor(-laborCost, (int)ActabilityType.Commerce);
 
         // Add one pack sold in this zone during this tick
         var zoneGroupId = ZoneManager.Instance.GetZoneByKey(player.Transform.ZoneId)?.GroupId ?? 0;
@@ -329,6 +378,7 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
         _soldPackAmountInTick[backpack.TemplateId].TryAdd(zoneGroupId, 0);
         _soldPackAmountInTick[backpack.TemplateId][zoneGroupId] += 1;
 
+        Logger.Debug($"SellSpecialty - Trade pack sold successfully for {basePrice} base price");
         return basePrice;
     }
 
