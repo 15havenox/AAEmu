@@ -1,4 +1,4 @@
-﻿using AAEmu.Commons.Models;
+using AAEmu.Commons.Models;
 using AAEmu.Commons.Utils;
 using AAEmu.Game.IO;
 using AAEmu.Game.Models.Game;
@@ -32,7 +32,7 @@ public partial class AppConfiguration : Singleton<AppConfiguration>
     public ClientDataConfig ClientData { get; set; } = new ClientDataConfig();
     public SpecialtyConfig Specialty { get; set; } = new SpecialtyConfig();
     public ScriptsConfig Scripts { get; set; } = new ScriptsConfig();
-    public string DefaultLanguage { get; set; } = "en_us";
+    public string DefaultLanguage { get; set; } = "en_us"; // Mude para "pt_br" para português brasileiro
     public bool DebugInfo { get; set; } = true;
     public uint DebugInfoLevel { get; set; } = 100;
 

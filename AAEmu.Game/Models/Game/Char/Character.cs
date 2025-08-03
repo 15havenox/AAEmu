@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Drawing;
 using AAEmu.Commons.Network;
@@ -112,6 +112,18 @@ public partial class Character : Unit, ICharacter
     public DateTime DeleteRequestTime { get; set; }
     public DateTime TransferRequestTime { get; set; }
     public DateTime DeleteTime { get; set; }
+    public string PreferredLanguage { get; set; } = "";
+
+    /// <summary>
+    /// Gets the effective language for this character (preferred language or server default)
+    /// </summary>
+    public string GetEffectiveLanguage()
+    {
+        if (!string.IsNullOrEmpty(PreferredLanguage) && LocalizationManager.Instance.IsLanguageAvailable(PreferredLanguage))
+            return PreferredLanguage;
+        
+        return AppConfiguration.Instance.DefaultLanguage;
+    }
 
     /// <summary>
     /// Cache value of AccountDetails.Loyalty
@@ -2437,7 +2449,7 @@ public partial class Character : Unit, ICharacter
                     "`faction_id`,`faction_name`,`expedition_id`,`family`,`dead_count`,`dead_time`,`rez_wait_duration`,`rez_time`,`rez_penalty_duration`,`leave_time`," +
                     "`money`,`money2`,`honor_point`,`vocation_point`,`crime_point`,`crime_record`,`jury_point`," +
                     "`delete_request_time`,`transfer_request_time`,`delete_time`,`auto_use_aapoint`,`prev_point`,`point`,`gift`," +
-                    "`num_inv_slot`,`num_bank_slot`,`expanded_expert`,`slots`,`created_at`,`updated_at`,`return_district`,`online_time`" +
+                    "`num_inv_slot`,`num_bank_slot`,`expanded_expert`,`slots`,`created_at`,`updated_at`,`return_district`,`online_time`,`preferred_language`" +
                     ") VALUES (" +
                     "@id,@account_id,@name,@access_level,@race,@gender,@unit_model_params,@level,@experience,@recoverable_exp," +
                     "@hp,@mp,@consumed_lp,@ability1,@ability2,@ability3," +
@@ -2445,7 +2457,7 @@ public partial class Character : Unit, ICharacter
                     "@faction_id,@faction_name,@expedition_id,@family,@dead_count,@dead_time,@rez_wait_duration,@rez_time,@rez_penalty_duration,@leave_time," +
                     "@money,@money2,@honor_point,@vocation_point,@crime_point,@crime_record,@jury_point," +
                     "@delete_request_time,@transfer_request_time,@delete_time,@auto_use_aapoint,@prev_point,@point,@gift," +
-                    "@num_inv_slot,@num_bank_slot,@expanded_expert,@slots,@created_at,@updated_at,@return_district,@online_time)";
+                    "@num_inv_slot,@num_bank_slot,@expanded_expert,@slots,@created_at,@updated_at,@return_district,@online_time,@preferred_language)";
 
                 command.Parameters.AddWithValue("@id", Id);
                 command.Parameters.AddWithValue("@account_id", AccountId);
@@ -2505,6 +2517,7 @@ public partial class Character : Unit, ICharacter
                 command.Parameters.AddWithValue("@updated_at", Updated);
                 command.Parameters.AddWithValue("@return_district", ReturnDistrictId);
                 command.Parameters.AddWithValue("@online_time", OnlineTime.TotalSeconds);
+                command.Parameters.AddWithValue("@preferred_language", PreferredLanguage);
                 command.ExecuteNonQuery();
             }
 

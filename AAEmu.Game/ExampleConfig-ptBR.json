@@ -1,0 +1,52 @@
+{
+  "Network": {
+    "Host": "127.0.0.1",
+    "Port": 1237,
+    "NumConnections": 100
+  },
+  "Login": {
+    "Host": "127.0.0.1",
+    "Port": 1239
+  },
+  "MySql": {
+    "Host": "127.0.0.1",
+    "Port": 3306,
+    "User": "AAEmu",
+    "Password": "AAEmu",
+    "Database": "AAEmu"
+  },
+  "World": {
+    "Name": "AAEmu - Brasil",
+    "Id": 1
+  },
+  "Credits": {
+    "Max": 5000,
+    "TickMinutes": 5,
+    "TickAmount": 5
+  },
+  "Loyalty": {
+    "Max": 5000,
+    "TickMinutes": 5,
+    "TickAmount": 5
+  },
+  "ClientData": {
+    "Sources": [
+      "ClientData",
+      "ClientData/game_pak",
+      "../../../../.server_files/AAEmu.Game/ClientData",
+      "../../../../.server_files/AAEmu.Game/ClientData/game_pak"
+    ]
+  },
+  "Specialty": {
+    "UseGrowthRate": false,
+    "GrowthRate": 1.0
+  },
+  "Scripts": {
+    "CompilerLocation": "",
+    "PreserveSymbols": false,
+    "Assemblies": []
+  },
+  "DefaultLanguage": "pt_br",
+  "DebugInfo": true,
+  "DebugInfoLevel": 100
+}
