@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Text;
 using AAEmu.Commons.Exceptions;
 using AAEmu.Commons.Network;
@@ -90,8 +90,16 @@ public class StreamProtocolHandler : BaseProtocolHandler
                 catch (MarshalException)
                 {
                     //Logger.Warn("Error on reading type {0}", type);
+                    AAEmu.Game.Core.Network.Protection.NetworkProtectionManager.Instance.ReportMalformedPacket(connection.Ip);
                     stream.Rollback();
                     connection.LastPacket = stream;
+                    stream = null;
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Unexpected error reading packet from {0}", connection.Ip);
+                    AAEmu.Game.Core.Network.Protection.NetworkProtectionManager.Instance.ReportMalformedPacket(connection.Ip);
                     stream = null;
                     continue;
                 }
@@ -113,6 +121,14 @@ public class StreamProtocolHandler : BaseProtocolHandler
 
                     stream2.ReadUInt16(); //len
                     var type = stream2.ReadUInt16();
+                    
+                    // Check protection system
+                    if (!AAEmu.Game.Core.Network.Protection.NetworkProtectionManager.Instance.ShouldProcessPacket(connection.Ip, type))
+                    {
+                        // Packet blocked by protection system
+                        continue;
+                    }
+                    
                     _packets.TryGetValue(type, out var classType);
                     if (classType == null)
                     {
@@ -149,6 +165,9 @@ public class StreamProtocolHandler : BaseProtocolHandler
 
     private static void HandleUnknownPacket(StreamConnection connection, uint type, PacketStream stream)
     {
+        // Report to protection system
+        AAEmu.Game.Core.Network.Protection.NetworkProtectionManager.Instance.ReportUnknownPacket(connection.Ip, type);
+        
         var dump = new StringBuilder();
         for (var i = stream.Pos; i < stream.Count; i++)
             dump.AppendFormat("{0:x2} ", stream.Buffer[i]);

@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System;
 
@@ -83,19 +83,33 @@ public class ShipController
         if (shipModel is null)
             return;
 
-        // If not in water, disable input for ships
-        if (slave.CachedFloorLevel > slave.CachedWaterSurface)
+        // Improved water detection logic
+        var waterDepth = Math.Max(0, slave.CachedWaterSurface - slave.CachedFloorLevel);
+        var isInWater = waterDepth > 1.0f; // Requires at least 1 unit of water depth
+        
+        // If not in sufficient water, disable input for ships
+        if (!isInWater)
         {
             slave.Throttle = 0;
             slave.Steering = 0;
+            
+            // Apply gravity if ship is above water
+            if (slave.CachedFloorLevel > slave.CachedWaterSurface)
+            {
+                var gravityForce = new JVector(0, -9.81f * rigidBody.Mass, 0);
+                rigidBody.AddForce(gravityForce);
+            }
         }
 
-        // Provide minimum speed of 1 when Throttle is used
-        if (slave is { Throttle: > 0, Speed: < 1f })
-            slave.Speed = 1f;
+        // Improved minimum speed handling
+        if (isInWater)
+        {
+            if (slave is { Throttle: > 0, Speed: < 1f })
+                slave.Speed = 1f;
 
-        if (slave is { Throttle: < 0, Speed: > -1f })
-            slave.Speed = -1f;
+            if (slave is { Throttle: < 0, Speed: > -1f })
+                slave.Speed = -1f;
+        }
         
         var throttleNorm = slave.Throttle * 0.00787401575f; // sbyte -> float
         var steeringNorm = slave.Steering * 0.00787401575f; // sbyte -> float
